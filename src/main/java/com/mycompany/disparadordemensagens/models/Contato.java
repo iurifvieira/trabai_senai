@@ -57,9 +57,4 @@ public class Contato {
     public String toString() {
         return nome + " (" + numeroTelefone + ")";
     }
-
-    public void setFill(Color DARKCYAN) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
-    
 }

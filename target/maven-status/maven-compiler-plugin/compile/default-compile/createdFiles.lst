@@ -9,3 +9,4 @@ com\mycompany\disparadordemensagens\database\Conexao.class
 com\mycompany\disparadordemensagens\models\Grupo.class
 com\mycompany\disparadordemensagens\models\Contato.class
 com\mycompany\disparadordemensagens\controller\CadastroControle.class
+com\mycompany\disparadordemensagens\controller\Sessao.class

@@ -25,34 +25,54 @@ public class TelaControle {
     @FXML
     private Button limpar;
 
+    private int id;
+
     @FXML
     private void entrarLogin() throws Exception {
+
         String nomeEntrar = nomelogin.getText();
         String senhaEntrar = senhalogin.getText();
+
         if (nomeEntrar.isEmpty() || senhaEntrar.isEmpty()) {
-            mostrarAlerta("Erro:", "Nome e senha são obrigatórios!");
+            mostrarAlerta("Erro", "Nome e senha são obrigatórios!");
             return;
         }
 
         try (Connection conn = Conexao.conectar()) {
-            String loginSql = "SELECT  id,  nome FROM usuarios WHERE UPPER(nome) = ? AND senha = ?";
-            PreparedStatement loginStmt = conn.prepareStatement(loginSql);
-            loginStmt.setString(1, nomeEntrar.toUpperCase());
-            loginStmt.setString(2, senhaEntrar);
-            ResultSet rslogin = loginStmt.executeQuery();
 
-            if (!rslogin.next()) {
-                mostrarAlerta("Erro", "Nome ou senha inválidos");
-                return;
+            String loginSql = """
+            SELECT id, nome
+            FROM usuarios
+            WHERE UPPER(nome) = ? AND senha = ?
+        """;
+
+            PreparedStatement stmt = conn.prepareStatement(loginSql);
+            stmt.setString(1, nomeEntrar.toUpperCase());
+            stmt.setString(2, senhaEntrar);
+
+            ResultSet rs = stmt.executeQuery();
+
+          if (rs.next()) {
+                // Login com sucesso
+                System.out.println("Login realizado! ID: " + rs.getInt("id"));
+                // Proxima tela...
+            } else {
+                // Falha no login
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setContentText("Usuário ou senha inválidos.");
+                alert.show();
             }
-          
-           
-            String nomeUsuario = rslogin.getString("nome");
-            if (nomeUsuario.equalsIgnoreCase("admin")) {
+
+            int id = rs.getInt("id");
+            String nome = rs.getString("nome");
+
+            Contato usuario = new Contato(id, nome, nomeEntrar);
+            Sessao.setUsuarioLogado(usuario);
+
+            if (nome.equalsIgnoreCase("admin")) {
                 App.setRoot("Admin");
             } else {
                 App.setRoot("Usuario");
-           
             }
         }
     }

@@ -40,6 +40,10 @@
                 <Button fx:id="cadastrar" onAction="#cadastrar" style="-fx-background-color: linear-gradient(to bottom, #00aaff, #005f99); -fx-text-fill: white; -fx-background-radius: 20;" text="Cadastrar" />
                 <Button fx:id="limpar" onAction="#limpar" style="-fx-background-color: linear-gradient(to bottom, #ff5c5c, #b22222); -fx-text-fill: white; -fx-background-radius: 20;" text="Limpar" />
             </HBox>
+            <VBox alignment="BOTTOM_CENTER" spacing="5" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+                <Label style="-fx-text-fill: #bdc3c7; -fx-font-size: 12px; -fx-font-style: italic;" text="Desenvolvido por: Iuri F. e João" />
+            </VBox>
+
         </VBox>
     </children>
 </AnchorPane>

@@ -1,8 +1,10 @@
 package com.mycompany.disparadordemensagens.controller;
 
+import com.mycompany.disparadordemensagens.controller.Sessao;
 import com.mycompany.disparadordemensagens.database.Conexao;
 import com.mycompany.disparadordemensagens.models.Contato;
 import com.mycompany.disparadordemensagens.App;
+import static com.mycompany.disparadordemensagens.controller.Sessao.getUsuarioLogado;
 import com.mycompany.disparadordemensagens.models.Grupo;
 import com.mycompany.disparadordemensagens.models.Mensagem;
 import javafx.fxml.FXML;
@@ -46,13 +48,13 @@ public class UsuarioControle {
     private ComboBox<Grupo> comboGrupos;
 
     private Map<Contato, List<Mensagem>> historicoMensagensMap = new HashMap<>();
-    private Popup sugestoesPopup = new Popup();
-    private ListView<Contato> listaSugestoes = new ListView<>();
     private List<Contato> todosUsuarios = new ArrayList<>();
 
     @FXML
     public void initialize() { // inicialização, onde carrega os usuarios
         listaContatos.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+        Contato usuarioLogado = Sessao.getUsuarioLogado();
+        listaContatos.getItems().removeIf(c -> c.getId() == usuarioLogado.getId());
         //Faz a conexão com o banco para trazer os usuarios
         try (Connection conn = Conexao.conectar()) {
             String sql = "SELECT id, nome, numeroTelefone FROM usuarios ";
@@ -65,9 +67,12 @@ public class UsuarioControle {
                 String nome = rs.getString("nome"); // nome 
                 String telefone = rs.getString("numeroTelefone"); // telefone
                 // crio um novo objeto contendo as informações
-                Contato contato = new Contato(id, nome, telefone);
-                listaContatos.getItems().add(contato); // jogo na lista de contatos
-                todosUsuarios.add(contato);
+
+                if (Sessao.getUsuarioLogado() == null || id != Sessao.getUsuarioLogado().getId()) {
+                    Contato contato = new Contato(id, nome, telefone);
+                    listaContatos.getItems().add(contato);
+                    todosUsuarios.add(contato);
+                }
             }
         } catch (Exception e) {  //caso dê erro
             e.printStackTrace();
@@ -139,35 +144,24 @@ public class UsuarioControle {
             mostrarAlerta("Atenção", "O campo de mensagens está vazio");
             return;
         }
+        Sessao.getUsuarioLogado();
         // tenta conectar com o banco para enviar as informações para os selecionados
         try (Connection conn = Conexao.conectar()) {
-            String sqlEnviar = "INSERT INTO mensagens ( destinatario_id, assunto, mensagem, prioridade, datahora) VALUES (?, ?, ?, ?, ?)";
+            String sqlEnviar = "INSERT INTO mensagens (destinatario_id, assunto, mensagem, prioridade, datahora, remetente_id) VALUES (?,?, ?, ?, ?, ?)";
             PreparedStatement stmt = conn.prepareStatement(sqlEnviar);
             //para contatos selecionados recebem
             for (Contato c : contatosSelecionados) {
-                Mensagem msg = new Mensagem(c.getId(), assunto, conteudo, prioridade);
+                Mensagem msg = new Mensagem(c.getId(), assunto, conteudo, prioridade, 0);
                 stmt.setInt(1, msg.getDestinatarioId());
                 stmt.setString(2, msg.getAssunto());
                 stmt.setString(3, msg.getMensagem());
                 stmt.setString(4, msg.getPrioridade());
                 stmt.setTimestamp(5, Timestamp.valueOf(msg.getDataHora()));
+                stmt.setInt(6, Sessao.getUsuarioLogado().getId());
                 stmt.executeUpdate();
-
-                // monta envelope para exibir na tela
-                StringBuilder envelope = new StringBuilder();
-                envelope.append("\n  PARA:    ").append(c.getNome()).append("\n");
-                envelope.append("  ASSUNTO: ").append(assunto.toUpperCase()).append("\n");
-                envelope.append("  DATA:    ").append(msg.getDataHora()).append("\n");
-                envelope.append("  PRIORIDADE: ").append(prioridade.toUpperCase()).append("\n");
-                envelope.append("_________________________________________________________________\n\n");
-                envelope.append("  MENSAGEM:\n\n");
-                envelope.append("  ").append(conteudo.replace("\n", "\n  ")).append("\n\n");
-                envelope.append("_________________________________________________________________\n\n");
-
-                // adiciona no TextArea de histórico
-                historicoMensagens.appendText(envelope.toString());
                 // Atualiza cache local
                 historicoMensagensMap.computeIfAbsent(c, k -> new java.util.ArrayList<>()).add(msg);
+
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -186,9 +180,19 @@ public class UsuarioControle {
         }
         // tenta fazer a conexão trazendo as informações do banco atualizado
         try (Connection conn = Conexao.conectar()) {
-            String sql = "SELECT  assunto, mensagem, prioridade, datahora FROM mensagens WHERE destinatario_id = ? ORDER BY datahora ASC ";
+            String sql = """
+                         SELECT assunto, mensagem, prioridade, datahora, remetente_id, destinatario_id 
+                         FROM mensagens 
+                         WHERE (destinatario_id = ? AND remetente_id = ?) 
+                         OR (destinatario_id = ? AND remetente_id = ?) 
+                         ORDER BY datahora ASC""";
+
             PreparedStatement stmt = conn.prepareStatement(sql);
-            stmt.setInt(1, selecionado.getId());
+            stmt.setInt(1, selecionado.getId());              // ele como destinatário
+            stmt.setInt(2, Sessao.getUsuarioLogado().getId()); // eu como remetente
+            stmt.setInt(3, Sessao.getUsuarioLogado().getId()); // eu como destinatário
+            stmt.setInt(4, selecionado.getId());               //ele como remetente
+
             //resultado do historico, forma o "envelope" com as informações
             ResultSet rs = stmt.executeQuery();
             StringBuilder sb = new StringBuilder();  //string builder serve para manipular sequencias de caracteres 
@@ -196,14 +200,27 @@ public class UsuarioControle {
             while (rs.next()) {
                 // monta envelope para exibir na tela
                 StringBuilder envelope = new StringBuilder();
-                envelope.append("\n  PARA:    ").append(selecionado.getNome()).append("-").append("(").append(selecionado.getNumeroTelefone()).append(")").append("\n");        //append serve para acrescentar algum valor a uma sequência atual
+                int remetenteId = rs.getInt("remetente_id");
+
+                if (remetenteId == Sessao.getUsuarioLogado().getId()) {
+                    // Mensagem enviada por você
+                    envelope.append("\n  DE: Você\n");
+                    envelope.append("  PARA: ").append(selecionado.getNome())
+                            .append(" (").append(selecionado.getNumeroTelefone()).append(")\n");
+                } else {
+                    // Mensagem recebida do outro usuário
+                    envelope.append("\n  DE: ").append(selecionado.getNome())
+                            .append(" (").append(selecionado.getNumeroTelefone()).append(")\n");
+                    envelope.append("  PARA: Você\n");
+                }
+
                 envelope.append("  ASSUNTO: ").append(rs.getString("assunto").toUpperCase()).append("\n");
                 envelope.append("  DATA:    ").append(rs.getTimestamp("datahora")).append("\n");
                 envelope.append("  PRIORIDADE: ").append(rs.getString("prioridade").toUpperCase()).append("\n");
-                envelope.append("_________________________________________________________________\n\n");
+                envelope.append("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n");
                 envelope.append("  MENSAGEM:\n\n");
                 envelope.append("  ").append(rs.getString("mensagem").replace("\n", "\n  ")).append("\n\n");
-                envelope.append("_________________________________________________________________\n\n");
+                envelope.append("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n");
                 //transforma em string para visualizar
                 sb.append(envelope.toString());
             }

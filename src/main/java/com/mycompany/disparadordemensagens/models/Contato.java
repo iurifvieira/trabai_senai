@@ -2,6 +2,7 @@ package com.mycompany.disparadordemensagens.models;
 
 import com.mycompany.disparadordemensagens.models.Contato;
 import com.mycompany.disparadordemensagens.controller.UsuarioControle;
+import java.util.Objects;
 import javafx.scene.paint.Color;
 public class Contato {
 
@@ -11,7 +12,7 @@ public class Contato {
 //    private String senha;
     
 
-    public Contato(int id, String nome, String numeroTelefone) {;
+    public Contato(int id, String nome, String numeroTelefone) {
         this.id = id;
         this.nome = nome;
         this.numeroTelefone = numeroTelefone;
@@ -56,5 +57,18 @@ public class Contato {
     @Override
     public String toString() {
         return nome + " (" + numeroTelefone + ")";
+    }
+
+  @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Contato)) return false;
+        Contato contato = (Contato) o;
+        return id == contato.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }

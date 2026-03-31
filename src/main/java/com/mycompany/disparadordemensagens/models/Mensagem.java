@@ -9,14 +9,15 @@ public class Mensagem {
     private String mensagem;
     private String prioridade;
     private LocalDateTime dataHora;
-    
+    private int remetendeId;
 //construtor
-    public Mensagem(int destinatarioId, String assunto, String mensagem, String prioridade) {
+    public Mensagem(int destinatarioId, String assunto, String mensagem, String prioridade, int remetendeId) {
         this.destinatarioId = destinatarioId;
         this.assunto = assunto;
         this.mensagem = mensagem;
         this.prioridade = prioridade;
         this.dataHora = LocalDateTime.now();
+        this.remetendeId =  remetendeId;
     }
 
    
@@ -41,7 +42,9 @@ public class Mensagem {
     public LocalDateTime getDataHora() {
         return dataHora;
     }
-
+    public int rementeteiId(){
+        return remetendeId;
+    }
     //setters
 
     public void setDestinatarioId(int destinatarioId) {
@@ -63,7 +66,10 @@ public class Mensagem {
     public void setDataHora(LocalDateTime dataHora) {
         this.dataHora = dataHora;
     }
- 
+        
+    public void setRemetenteId(int remetenteId){
+        this.remetendeId = remetenteId;
+    }
 
 
 }

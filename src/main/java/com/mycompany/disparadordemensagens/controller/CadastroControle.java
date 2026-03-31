@@ -2,6 +2,7 @@ package com.mycompany.disparadordemensagens.controller;
 
 import com.mycompany.disparadordemensagens.database.Conexao;
 import com.mycompany.disparadordemensagens.App;
+import com.mycompany.disparadordemensagens.models.Contato;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.PasswordField;
@@ -9,6 +10,7 @@ import javafx.scene.control.TextField;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.function.Function;
 import javafx.scene.control.Alert;
 
 public class CadastroControle {
@@ -22,7 +24,9 @@ public class CadastroControle {
     private PasswordField senhaField;  // Campo para digitar a senha
     @FXML
     private Button voltar;             // Botão "Voltar" 
-
+    
+    private int id; 
+    
     // Método chamado ao clicar em "Cadastrar"
     @FXML
     private void cadastrar() throws Exception {
@@ -30,7 +34,7 @@ public class CadastroControle {
         String nome = nomeField.getText();
         String telefone = telefoneField.getText();
         String senha = senhaField.getText();
-      
+        
         // Valida se os campos estão preenchidos
         if (nome.isEmpty()) {
             mostrarAlerta("Erro", "O campo nome passou vazio!");

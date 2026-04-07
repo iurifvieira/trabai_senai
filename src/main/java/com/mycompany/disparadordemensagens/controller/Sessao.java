@@ -2,6 +2,7 @@ package com.mycompany.disparadordemensagens.controller;
 
 import com.mycompany.disparadordemensagens.models.Contato;
 
+// Classe para identificar o usuario logado
 public class Sessao {
 
     private static Contato usuarioLogado;

@@ -13,6 +13,7 @@ import javafx.scene.control.Alert;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+//classe para login de usuario 
 
 public class TelaControle {
 
@@ -29,69 +30,64 @@ public class TelaControle {
 
     @FXML
     private void entrarLogin() throws Exception {
-
-        String nomeEntrar = nomelogin.getText();
-        String senhaEntrar = senhalogin.getText();
+        String nomeEntrar = nomelogin.getText().trim();
+        String senhaEntrar = senhalogin.getText().trim();
 
         if (nomeEntrar.isEmpty() || senhaEntrar.isEmpty()) {
             mostrarAlerta("Erro", "Nome e senha são obrigatórios!");
             return;
         }
-
         try (Connection conn = Conexao.conectar()) {
-
-            String loginSql = """
-            SELECT id, nome
-            FROM usuarios
-            WHERE UPPER(nome) = ? AND senha = ?
-        """;
-
+            String loginSql = " SELECT id, nome, numeroTelefone, senha FROM usuarios WHERE UPPER(nome) = ? AND senha = ?";
             PreparedStatement stmt = conn.prepareStatement(loginSql);
             stmt.setString(1, nomeEntrar.toUpperCase());
             stmt.setString(2, senhaEntrar);
 
             ResultSet rs = stmt.executeQuery();
 
-          if (rs.next()) {
-                // Login com sucesso
-                System.out.println("Login realizado! ID: " + rs.getInt("id"));
-                // Proxima tela...
-            } else {
-                // Falha no login
-                Alert alert = new Alert(Alert.AlertType.ERROR);
-                alert.setContentText("Usuário ou senha inválidos.");
-                alert.show();
+            if (rs.next()) {
+                int id = rs.getInt("id");
+                String nome = rs.getString("nome");
+                String telefone = rs.getString("numeroTelefone");
+
+                // cria objeto do usuário logado
+                Contato usuario = new Contato(id, nome, telefone);
+                // Salva na sessão
+                Sessao.setUsuarioLogado(usuario);
+                try {
+                    App.setRoot("Usuario");
+                } catch (Exception e) {
+                    mostrarAlerta("Erro", " ao mudar para tela de Usuário: " + e.getMessage());
+                    e.printStackTrace();
+                }
+            
+            }else{
+                mostrarAlerta("Erro", "Senha ou nome incorreto!");
             }
-
-            int id = rs.getInt("id");
-            String nome = rs.getString("nome");
-
-            Contato usuario = new Contato(id, nome, nomeEntrar);
-            Sessao.setUsuarioLogado(usuario);
-
-            if (nome.equalsIgnoreCase("admin")) {
-                App.setRoot("Admin");
-            } else {
-                App.setRoot("Usuario");
-            }
+            
         }
     }
-
-    @FXML
-    private void limparLogin() {
+        @FXML
+        private void limparLogin
+        
+            () {
         nomelogin.clear();
-        senhalogin.clear();
-    }
-
-    @FXML
-    private void cadastrarNovoUsuario() {
-        try {
-            App.setRoot("cadastro");
-        } catch (Exception e) {
-            mostrarAlerta("Erro", " ao mudar para tela de cadastro: " + e.getMessage());
-            e.printStackTrace();
+            senhalogin.clear();
         }
-    }
+
+        @FXML
+        private void cadastrarNovoUsuario
+        
+            () {
+        try {
+                App.setRoot("cadastro");
+            } catch (Exception e) {
+                mostrarAlerta("Erro", " ao mudar para tela de cadastro: " + e.getMessage());
+                e.printStackTrace();
+            }
+        }
+
+    
 
     private void mostrarAlerta(String titulo, String mensagem) {
         Alert alert = new Alert(Alert.AlertType.ERROR);

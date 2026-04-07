@@ -1,12 +1,9 @@
 com\mycompany\disparadordemensagens\App.class
-com\mycompany\disparadordemensagens\models\EnviaLote.class
-com\mycompany\disparadordemensagens\controller\UsuarioControle.class
-com\mycompany\disparadordemensagens\controller\AdminControle.class
-com\mycompany\disparadordemensagens\controller\TelaControle.class
 com\mycompany\disparadordemensagens\models\Mensagem.class
 module-info.class
 com\mycompany\disparadordemensagens\database\Conexao.class
-com\mycompany\disparadordemensagens\models\Grupo.class
+com\mycompany\disparadordemensagens\controller\UsuarioControle.class
+com\mycompany\disparadordemensagens\controller\TelaControle.class
 com\mycompany\disparadordemensagens\models\Contato.class
 com\mycompany\disparadordemensagens\controller\CadastroControle.class
 com\mycompany\disparadordemensagens\controller\Sessao.class

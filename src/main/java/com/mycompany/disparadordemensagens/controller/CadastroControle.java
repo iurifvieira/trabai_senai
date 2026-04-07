@@ -10,120 +10,113 @@ import javafx.scene.control.TextField;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.util.function.Function;
+import java.sql.Statement; 
 import javafx.scene.control.Alert;
 
 public class CadastroControle {
 
-    // Campos de texto e botões ligados ao FXML
     @FXML
-    private TextField nomeField;       // Campo para digitar o nome
+    private TextField nomeField;
     @FXML
-    private TextField telefoneField;   // Campo para digitar o telefone
+    private TextField telefoneField;
     @FXML
-    private PasswordField senhaField;  // Campo para digitar a senha
+    private PasswordField senhaField;
     @FXML
-    private Button voltar;             // Botão "Voltar" 
-    
-    private int id; 
-    
-    // Método chamado ao clicar em "Cadastrar"
+    private Button voltar;
+
     @FXML
     private void cadastrar() throws Exception {
-        // Pega os valores digitados nos campos
         String nome = nomeField.getText();
         String telefone = telefoneField.getText();
         String senha = senhaField.getText();
-        
-        // Valida se os campos estão preenchidos
+
         if (nome.isEmpty()) {
             mostrarAlerta("Erro", "O campo nome passou vazio!");
             return;
         }
-        // Valida se o nome contém apenas letras e espaços
-        if (!nome.matches("[A-Za-z ]+")) {
+        if (!nome.matches("[\\p{L} ]+")) {
             mostrarAlerta("Erro", "Nome deve conter apenas letras!");
             return;
         }
-        if(telefone.isEmpty()){
+        if (telefone.isEmpty()) {
             mostrarAlerta("Erro", "O campo de telefone passou vazio");
+            return;
+        }
+        if (!telefone.matches("\\d{11}")) {
+            mostrarAlerta("Erro", "Apenas 11 numeros de telefone");
+            return;
         }
         if (senha.isEmpty()) {
             mostrarAlerta("Erro", "O campo de senha passou vazio!");
             return;
         }
+        if (senha.length() < 8) {
+            mostrarAlerta("Erro", "A senha deve ter no minimo 8 caracteres!");
+            return;
+        }
 
+        // Verifica telefone duplicado
         try (Connection conn = Conexao.conectar()) {
-            // Verifica se já existe usuário com mesmo telefone
             String checkTelefoneSql = "SELECT * FROM usuarios WHERE numeroTelefone = ?";
             PreparedStatement checkTelefoneStmt = conn.prepareStatement(checkTelefoneSql);
             checkTelefoneStmt.setString(1, telefone);
             ResultSet rsTelefone = checkTelefoneStmt.executeQuery();
-
             if (rsTelefone.next()) {
                 mostrarAlerta("Erro", "Telefone já cadastrado!");
                 return;
             }
         }
-        try (Connection conn = Conexao.conectar()) {
-            //verifica  se ja existe admin
-            String checkAdminSql = "SELECT  * FROM usuarios WHERE LOWER(nome) = 'admin' ";
-            PreparedStatement checkAdminStmt = conn.prepareStatement(checkAdminSql);
-            ResultSet rsAdmin = checkAdminStmt.executeQuery();
 
-            if (rsAdmin.next() && nome.equalsIgnoreCase("admin")) {
-                mostrarAlerta("Erro", "Já existe um admin cadastrado");
-                return;
-            }
-        }
-        // Se passou nas validações, tenta salvar no banco
+        // Insere e recupera o id gerado pelo banco
         try (Connection conn = Conexao.conectar()) {
             String sql = "INSERT INTO usuarios (nome, numeroTelefone, senha) VALUES (?, ?, ?)";
-            PreparedStatement stmt = conn.prepareStatement(sql);
+
+            // 
+            PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
             stmt.setString(1, nome);
             stmt.setString(2, telefone);
             stmt.setString(3, senha);
             stmt.executeUpdate();
 
-            mostrarAlerta("Sucesso", "Usuário cadastrado com sucesso!");
-
-            if (nome.equalsIgnoreCase("admin")) {
-                App.setRoot("Admin");
-            } else {
-                App.setRoot("Usuario");
+            // ✅ Lê o id gerado e cria a sessão com o id correto
+            ResultSet rs = stmt.getGeneratedKeys();
+            if (rs.next()) {
+                int idGerado = rs.getInt(1);
+                Contato novoUsuario = new Contato(idGerado, nome, telefone);
+                Sessao.setUsuarioLogado(novoUsuario);
             }
-        } catch (Exception e) {
-            mostrarAlerta("Erro", "Falha ao cadastrar no banco: " + e.getMessage());
-            e.printStackTrace();
+
+            mostrarAlerta("Sucesso", "Usuário cadastrado com sucesso!");
+            try {
+                App.setRoot("Usuario");
+            } catch (Exception e) {
+                mostrarAlerta("Erro", "Ao mudar para tela de Usuário: " + e.getMessage());
+                e.printStackTrace();
+            }
         }
     }
-    
-    // Método chamado ao clicar em "Limpar"
+
     @FXML
     private void limpar() {
-        // Limpa os campos de texto
         nomeField.clear();
         telefoneField.clear();
         senhaField.clear();
     }
 
-    // Método chamado ao clicar em "Voltar para login"
     @FXML
     private void voltarLogin() {
         try {
-            App.setRoot("tela"); // Volta para a tela de login (tela.fxml)
+            App.setRoot("tela");
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
-//eqwqeqe
-    // Método auxiliar para mostrar mensagens de erro em pop-up
 
     private void mostrarAlerta(String titulo, String mensagem) {
-        Alert alert = new Alert(Alert.AlertType.ERROR); // Cria alerta do tipo erro
-        alert.setTitle(titulo);                         // Define título da janela
-        alert.setHeaderText(null);                      // Remove cabeçalho
-        alert.setContentText(mensagem);                 // Define mensagem
-        alert.showAndWait();                            // Exibe e espera o usuário fechar
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle(titulo);
+        alert.setHeaderText(null);
+        alert.setContentText(mensagem);
+        alert.showAndWait();
     }
 }

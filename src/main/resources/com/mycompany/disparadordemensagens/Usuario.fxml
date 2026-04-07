@@ -14,6 +14,8 @@
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.image.ImageView?>
 
 <VBox prefHeight="750.0" prefWidth="1100.0" spacing="0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mycompany.disparadordemensagens.controller.UsuarioControle">
     <children>
@@ -23,6 +25,8 @@
                 <Separator orientation="VERTICAL" />
                 <Label fx:id="labelStatusSistema" style="-fx-text-fill: #27ae60;" text="● Sistema Online" />
                 <Region HBox.hgrow="ALWAYS" />
+
+                <!--Botão de sair -->
                 <Button onAction="#logout" style="-fx-background-color: #c0392b; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;" text="Sair / Trocar Conta" />
             </children>
         </HBox>
@@ -55,14 +59,14 @@
                         <Insets bottom="20" left="25" right="25" top="15" />
                     </padding>
                     <children>
-                  
+
                         <Label style="-fx-font-weight: bold; -fx-text-fill: #7f8c8d;" text="Histórico de Conversa Individual" />
                         <TextArea fx:id="historicoMensagens" editable="false" prefHeight="250.0" promptText="As mensagens envidas aparecerão aqui.." style="-fx-control-inner-background: #fdfdfd; -fx-font-family: 'Consolas', 'Monospace'; -fx-font-size: 12px; -fx-border-color: #e0e0e0;" wrapText="true" />
 
                         <Separator />
 
                         <Label style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;" text="Enviar Nova Mensagem" />
-                  
+
                         <GridPane hgap="10" vgap="10">
                             <columnConstraints>
                                 <ColumnConstraints prefWidth="80" />
@@ -71,7 +75,7 @@
                             <children>
                                 <Label text="Assunto:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
                                 <TextField fx:id="campoAssuntoEnvio" promptText="Assunto da mensagem..." GridPane.columnIndex="1" GridPane.rowIndex="0" />
-                        
+
                                 <Label text="Prioridade:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
                                 <ComboBox fx:id="comboPrioridade" prefWidth="180" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                             </children>

@@ -10,8 +10,10 @@ import javafx.scene.control.TextField;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.Statement; 
+import java.sql.Statement;
 import javafx.scene.control.Alert;
+import java.util.regex.Pattern;
+import javafx.scene.control.Label;
 
 public class CadastroControle {
 
@@ -22,14 +24,31 @@ public class CadastroControle {
     @FXML
     private PasswordField senhaField;
     @FXML
+    private TextField emailField;
+    @FXML
     private Button voltar;
+    @FXML
+    private Label labelTelefoneCount;
 
     @FXML
     private void cadastrar() throws Exception {
         String nome = nomeField.getText();
         String telefone = telefoneField.getText();
         String senha = senhaField.getText();
+        String email = emailField.getText();
 
+        if (email.isEmpty()) {
+            mostrarAlerta("Erro", "O campo de e-mail está vazio!");
+            return;
+        }
+        //valida se o email vai passar com o '@gmail.com
+        if (!email.matches("^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@"
+                + "(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$")) {
+            mostrarAlerta("Erro", "Formato de e-mail inválido!");
+            return;
+        }
+
+        //validações dos campos
         if (nome.isEmpty()) {
             mostrarAlerta("Erro", "O campo nome passou vazio!");
             return;
@@ -67,22 +86,34 @@ public class CadastroControle {
             }
         }
 
+        try (Connection conn = Conexao.conectar()) {
+            String checkEmailSql = "SELECT * FROM usuarios WHERE email = ?";
+            PreparedStatement checkEmailStmt = conn.prepareStatement(checkEmailSql);
+            checkEmailStmt.setString(1, email);
+            ResultSet rsEmail = checkEmailStmt.executeQuery();
+
+            if (rsEmail.next()) {
+                mostrarAlerta("Erro", "Este  Email já está cadastrado!");
+                return;
+            }
+        }
+
         // Insere e recupera o id gerado pelo banco
         try (Connection conn = Conexao.conectar()) {
-            String sql = "INSERT INTO usuarios (nome, numeroTelefone, senha) VALUES (?, ?, ?)";
+            String sql = "INSERT INTO usuarios (nome, numeroTelefone, senha, email) VALUES (?, ?, ?, ?)";
 
-            // 
             PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
             stmt.setString(1, nome);
             stmt.setString(2, telefone);
             stmt.setString(3, senha);
+            stmt.setString(4, email);
             stmt.executeUpdate();
 
-            // ✅ Lê o id gerado e cria a sessão com o id correto
+            // o id gerado e cria a sessão com o id correto
             ResultSet rs = stmt.getGeneratedKeys();
             if (rs.next()) {
                 int idGerado = rs.getInt(1);
-                Contato novoUsuario = new Contato(idGerado, nome, telefone);
+                Contato novoUsuario = new Contato(idGerado, nome, telefone, email);
                 Sessao.setUsuarioLogado(novoUsuario);
             }
 
@@ -94,6 +125,40 @@ public class CadastroControle {
                 e.printStackTrace();
             }
         }
+    }
+
+    @FXML   //função para perca de foco dos campos
+    public void initialize() {
+        // Ao pressionar Enter no campo nome → vai para telefone
+        emailField.setOnAction(e -> nomeField.requestFocus());
+
+        // Ao pressionar Enter no campo telefone → vai para email
+        nomeField.setOnAction(e -> telefoneField.requestFocus());
+
+        // Ao pressionar Enter no campo email → vai para senha
+        telefoneField.setOnAction(e -> senhaField.requestFocus());
+    }
+
+    @FXML //conta quantos digitos foram feitos no campo de telefone
+    public void contagemTel() {
+        telefoneField.textProperty().addListener((obs, oldValue, newValue) -> {
+            // remove caracteres não numéricos
+            String digits = newValue.replaceAll("[^\\d]", "");
+
+            // atualiza contador
+            labelTelefoneCount.setText(digits.length() + "/11 dígitos");
+
+            // limita a 11 dígitos
+            if (digits.length() > 11) {
+                digits = digits.substring(0, 11);
+            }
+
+            // atualiza campo sem caracteres inválidos
+            if (!newValue.equals(digits)) {
+                telefoneField.setText(digits);
+                telefoneField.positionCaret(digits.length());
+            }
+        });
     }
 
     @FXML

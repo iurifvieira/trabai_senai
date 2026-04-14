@@ -47,7 +47,7 @@ public class UsuarioControle {
 
         // A filtragem do usuário logado é feita corretamente dentro do while abaixo
         try (Connection conn = Conexao.conectar()) {
-            String sql = "SELECT id, nome, numeroTelefone FROM usuarios";
+            String sql = "SELECT id, nome, numeroTelefone, email FROM usuarios";
             PreparedStatement stmt = conn.prepareStatement(sql);
             ResultSet rs = stmt.executeQuery();
 
@@ -55,10 +55,10 @@ public class UsuarioControle {
                 int id = rs.getInt("id");
                 String nome = rs.getString("nome");
                 String telefone = rs.getString("numeroTelefone");
-
+                String email = rs.getString("email");
                 // Filtra o usuário logado corretamente aqui
                 if (Sessao.getUsuarioLogado() == null || id != Sessao.getUsuarioLogado().getId()) {
-                    Contato contato = new Contato(id, nome, telefone);
+                    Contato contato = new Contato(id, nome, telefone, email);
                     listaContatos.getItems().add(contato);
                     todosUsuarios.add(contato);
                 }
@@ -176,7 +176,7 @@ public class UsuarioControle {
 
             ResultSet rs = stmt.executeQuery();
             StringBuilder sb = new StringBuilder();
-            sb.append("HISTÓRICO COM: ").append(selecionado.getNome()).append("\n");
+            sb.append("HISTÓRICO COM: ").append(selecionado.getNome()).append(" ").append("<").append(selecionado.getEmail()).append(">").append("\n");
 
             boolean temMensagens = false;
             while (rs.next()) {
@@ -186,12 +186,12 @@ public class UsuarioControle {
                 int destinatarioId = rs.getInt("destinatario_id");
 
                 String remetenteNome = (remetenteId == Sessao.getUsuarioLogado().getId())
-                        ? "Você"
-                        : selecionado.getNome();
+                        ? "Você <" + Sessao.getUsuarioLogado().getEmail() + ">"
+                        : selecionado.getNome() + " <" + selecionado.getEmail() + ">";
 
                 String destinatarioNome = (destinatarioId == Sessao.getUsuarioLogado().getId())
-                        ? "Você"
-                        : selecionado.getNome();
+                        ? "Você <" + Sessao.getUsuarioLogado().getEmail() + ">"
+                        : selecionado.getNome() + " <" + selecionado.getEmail() + ">";
 
                 sb.append("\nDE: ").append(remetenteNome).append("\n");
                 sb.append("PARA: ").append(destinatarioNome).append("\n");
@@ -231,10 +231,10 @@ public class UsuarioControle {
                     int id = rsPesq.getInt("id");
                     String nomeUsuario = rsPesq.getString("nome");
                     String telefone = rsPesq.getString("numeroTelefone");
-
+                    String email = rsPesq.getString("email");
                     // Filtra o usuário logado também na pesquisa
                     if (usuarioLogado == null || id != usuarioLogado.getId()) {
-                        Contato c = new Contato(id, nomeUsuario, telefone);
+                        Contato c = new Contato(id, nomeUsuario, telefone, email);
                         listaContatos.getItems().add(c);
                     }
                 }

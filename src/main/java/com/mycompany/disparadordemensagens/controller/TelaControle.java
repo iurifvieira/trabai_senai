@@ -18,9 +18,9 @@ import java.sql.ResultSet;
 public class TelaControle {
 
     @FXML
-    private TextField nomelogin;
-    @FXML
     private PasswordField senhalogin;
+    @FXML
+    private TextField emaillogin;
     @FXML
     private Button salvar;
     @FXML
@@ -30,17 +30,18 @@ public class TelaControle {
 
     @FXML
     private void entrarLogin() throws Exception {
-        String nomeEntrar = nomelogin.getText().trim();
+        String emailEntrar = emaillogin.getText().trim();
         String senhaEntrar = senhalogin.getText().trim();
 
-        if (nomeEntrar.isEmpty() || senhaEntrar.isEmpty()) {
-            mostrarAlerta("Erro", "Nome e senha são obrigatórios!");
+        if (emailEntrar.isEmpty() || senhaEntrar.isEmpty()) {
+            mostrarAlerta("Erro", "E-mail e senha são obrigatórios!");
             return;
         }
+
         try (Connection conn = Conexao.conectar()) {
-            String loginSql = " SELECT id, nome, numeroTelefone, senha FROM usuarios WHERE UPPER(nome) = ? AND senha = ?";
+            String loginSql = "SELECT id, nome, numeroTelefone, email, senha FROM usuarios WHERE email = ? AND senha = ?";
             PreparedStatement stmt = conn.prepareStatement(loginSql);
-            stmt.setString(1, nomeEntrar.toUpperCase());
+            stmt.setString(1, emailEntrar);
             stmt.setString(2, senhaEntrar);
 
             ResultSet rs = stmt.executeQuery();
@@ -49,45 +50,48 @@ public class TelaControle {
                 int id = rs.getInt("id");
                 String nome = rs.getString("nome");
                 String telefone = rs.getString("numeroTelefone");
+                String email = rs.getString("email");
 
-                // cria objeto do usuário logado
-                Contato usuario = new Contato(id, nome, telefone);
-                // Salva na sessão
+                Contato usuario = new Contato(id, nome, telefone, email);
                 Sessao.setUsuarioLogado(usuario);
+
                 try {
                     App.setRoot("Usuario");
                 } catch (Exception e) {
-                    mostrarAlerta("Erro", " ao mudar para tela de Usuário: " + e.getMessage());
+                    mostrarAlerta("Erro", "Falha ao abrir tela de Usuário: " + e.getMessage());
                     e.printStackTrace();
                 }
-            
-            }else{
-                mostrarAlerta("Erro", "Senha ou nome incorreto!");
+            } else {
+                mostrarAlerta("Erro", "E-mail ou senha incorretos!");
             }
-            
         }
     }
-        @FXML
-        private void limparLogin
-        
-            () {
-        nomelogin.clear();
-            senhalogin.clear();
-        }
 
-        @FXML
-        private void cadastrarNovoUsuario
-        
-            () {
+    @FXML
+    private void limparLogin() {
+        emaillogin.clear();
+        senhalogin.clear();
+    }
+
+    @FXML
+    private void cadastrarNovoUsuario() {
         try {
-                App.setRoot("cadastro");
-            } catch (Exception e) {
-                mostrarAlerta("Erro", " ao mudar para tela de cadastro: " + e.getMessage());
-                e.printStackTrace();
-            }
+            App.setRoot("cadastro");
+        } catch (Exception e) {
+            mostrarAlerta("Erro", " ao mudar para tela de cadastro: " + e.getMessage());
+            e.printStackTrace();
         }
+    }
 
-    
+    @FXML
+    private void abrirTelaRedefinirSenha() {
+        try {
+            App.setRoot("EsqueciSenha"); // nome do arquivo FXML da tela de redefinição
+        } catch (Exception e) {
+            mostrarAlerta("Erro", "Não foi possível abrir a tela de redefinição.");
+            e.printStackTrace();
+        }
+    }
 
     private void mostrarAlerta(String titulo, String mensagem) {
         Alert alert = new Alert(Alert.AlertType.ERROR);

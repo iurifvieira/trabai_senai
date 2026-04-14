@@ -10,12 +10,15 @@ public class Contato {
     private int id;
     private String nome;
     private String numeroTelefone;
-//    private String senha;
-    public Contato(int id, String nome, String numeroTelefone) {
+//  private String senha;
+    private String email;
+
+    public Contato(int id, String nome, String numeroTelefone, String email) {
         this.id = id;
         this.nome = nome;
         this.numeroTelefone = numeroTelefone;
 //        this.senha = senha;
+        this.email = email;
     }
 
     public int getId() {
@@ -33,8 +36,10 @@ public class Contato {
 //    public String getSenha() {
 //        return senha;
 //    }
+    public String getEmail() {
+        return email;
+    }
 
-    
     //setters  
     public void setId(int id) {
         this.id = id;
@@ -47,23 +52,22 @@ public class Contato {
     public void setNumeroTelefone(String numeroTelefone) {
         this.numeroTelefone = numeroTelefone;
     }
-
-//
 //    public void setSenha(String Senha) {
 //        this.senha = senha;
 //    }
 
-    @Override
-    public String toString() {
-        return nome + " (" + numeroTelefone + ")";
+    public void setEmail(String email) {
+        this.email = email;
     }
 
-   
+    @Override
+    public String toString() {
+        return nome + " (" + email + ")";
+    }
 
     @Override
     public int hashCode() {
         return Objects.hash(id);
     }
 
-   
 }

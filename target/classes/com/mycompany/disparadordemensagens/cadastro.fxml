@@ -15,8 +15,15 @@
         <VBox alignment="CENTER" spacing="15" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
 
             <!-- Título -->
-            <Label style="-fx-text-fill: #00aaff; -fx-font-weight: bold; -fx-font-size: 22px;" text="Cadastro de Usuário" />
+            <!-- Título -->
+            <Label style="-fx-text-fill: #446ee1;               -fx-font-weight: bold;               -fx-font-size: 28px;               -fx-font-family: 'Arial Black';" text="Cadastro de Usuário" />
+              
 
+            <!-- Campo Email -->
+            <HBox alignment="CENTER" spacing="10">
+                <TextField fx:id="emailField" prefWidth="220" promptText="E-mail" style="-fx-background-color: #2c2c2c; -fx-text-fill: white; -fx-prompt-text-fill: #888888; -fx-background-radius: 12; -fx-border-radius: 12; -fx-border-color: #444444;" />
+            </HBox>
+            
             <!-- Campo Nome -->
             <HBox alignment="CENTER" spacing="10">
                 <TextField fx:id="nomeField" prefWidth="220" promptText="Nome" style="-fx-background-color: #2c2c2c; -fx-text-fill: white; -fx-prompt-text-fill: #888888; -fx-background-radius: 12; -fx-border-radius: 12; -fx-border-color: #444444;" />
@@ -27,14 +34,16 @@
                 <TextField fx:id="telefoneField" prefWidth="220" promptText="Telefone" style="-fx-background-color: #2c2c2c; -fx-text-fill: white; -fx-prompt-text-fill: #888888; -fx-background-radius: 12; -fx-border-radius: 12; -fx-border-color: #444444;" />
             </HBox>
 
+
             <!-- Campo Senha -->
             <HBox alignment="CENTER" spacing="10">
                 <PasswordField fx:id="senhaField" prefWidth="220" promptText="Senha" style="-fx-background-color: #2c2c2c; -fx-text-fill: white; -fx-prompt-text-fill: #888888; -fx-background-radius: 12; -fx-border-radius: 12; -fx-border-color: #444444;" />
             </HBox>
 
-            <!-- Link de voltar -->
-            <Hyperlink fx:id="voltarLogin" onAction="#voltarLogin" style="-fx-text-fill: #bbbbbb;" text="Tela de login" />
-
+            <HBox alignment="CENTER" spacing="5">
+                <Label style="-fx-text-fill: #bbbbbb;" text="Já possui uma conta?" />
+                <Hyperlink fx:id="voltarLogin" onAction="#voltarLogin" style="-fx-text-fill: #00aaff;" text="Entrar" />
+            </HBox>
             <!-- Botões principais -->
             <HBox alignment="CENTER" spacing="20">
                 <Button fx:id="cadastrar" onAction="#cadastrar" style="-fx-background-color: linear-gradient(to bottom, #00aaff, #005f99); -fx-text-fill: white; -fx-background-radius: 20;" text="Cadastrar" />

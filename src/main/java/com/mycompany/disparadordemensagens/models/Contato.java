@@ -12,6 +12,7 @@ public class Contato {
     private String numeroTelefone;
 //  private String senha;
     private String email;
+    private String fotoPerfil;
 
     public Contato(int id, String nome, String numeroTelefone, String email) {
         this.id = id;
@@ -38,6 +39,14 @@ public class Contato {
 //    }
     public String getEmail() {
         return email;
+    }
+
+    public String getFotoPerfil() {
+        return fotoPerfil;
+    }
+
+    public void setFotoPerfil(String fotoPerfil) {
+        this.fotoPerfil = fotoPerfil;
     }
 
     //setters  

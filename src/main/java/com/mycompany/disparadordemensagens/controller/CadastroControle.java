@@ -29,6 +29,18 @@ public class CadastroControle {
     private Button voltar;
     @FXML
     private Label labelTelefoneCount;
+    @FXML
+    private Button cadastrar;
+
+    /**
+     * Função de cadastro de usuário
+     * 
+     * @throws Exception  caso não consiga fazer cadastro
+     * 
+     * @author Iuri
+     * @since 30/04/2026
+     * @return Trás o usuário logado
+     */
 
     @FXML
     private void cadastrar() throws Exception {
@@ -36,19 +48,19 @@ public class CadastroControle {
         String telefone = telefoneField.getText();
         String senha = senhaField.getText();
         String email = emailField.getText();
-
+        
         if (email.isEmpty()) {
             mostrarAlerta("Erro", "O campo de e-mail está vazio!");
             return;
         }
-        //valida se o email vai passar com o '@gmail.com
+        // valida se o email vai passar com o '@gmail.com
         if (!email.matches("^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@"
                 + "(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$")) {
             mostrarAlerta("Erro", "Formato de e-mail inválido!");
             return;
         }
 
-        //validações dos campos
+        // validações dos campos
         if (nome.isEmpty()) {
             mostrarAlerta("Erro", "O campo nome passou vazio!");
             return;
@@ -127,19 +139,36 @@ public class CadastroControle {
         }
     }
 
-    @FXML   //função para perca de foco dos campos
+    /**
+     * função para perca de foco dos campos
+     * 
+     * @author Iuri
+     * @since 30/04/2026
+     * @param
+     */
+    @FXML
     public void initialize() {
-        // Ao pressionar Enter no campo nome → vai para telefone
+        // Ao pressionar Enter no campo email → vai para nome 
         emailField.setOnAction(e -> nomeField.requestFocus());
 
-        // Ao pressionar Enter no campo telefone → vai para email
+        // Ao pressionar Enter no campo nome → vai para telefone
         nomeField.setOnAction(e -> telefoneField.requestFocus());
 
-        // Ao pressionar Enter no campo email → vai para senha
+        // Ao pressionar Enter no campo telefone → vai para senha
         telefoneField.setOnAction(e -> senhaField.requestFocus());
+        
+        senhaField.setOnAction(e -> cadastrar.requestFocus()); 
     }
 
-    @FXML //conta quantos digitos foram feitos no campo de telefone
+    /**
+     * Limita a 11 dígitos o campo de telefone
+     * 
+     * @author Iuri
+     * @since 30/04/2026
+     * @param telefoneField - recebe o valor do campo
+     * @return Retorna o campo sem caracteres inválidos
+     */
+    @FXML //
     public void contagemTel() {
         telefoneField.textProperty().addListener((obs, oldValue, newValue) -> {
             // remove caracteres não numéricos

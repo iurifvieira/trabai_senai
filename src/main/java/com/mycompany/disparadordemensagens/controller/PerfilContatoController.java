@@ -23,17 +23,17 @@ public class PerfilContatoController {
     @FXML
     private ImageView fotoContato;
     @FXML
-    private TextField labelNome;
+    private Label NomeContato;
     @FXML
-    private TextField labelTelefone;
+    private Label TelefoneContato;
     @FXML
-    private TextField labelEmail;
+    private Label EmailContato;
     // @FXML private Label labelId;
 
     void setContato(Contato contato) {
-        labelNome.setText("Nome: " + contato.getNome());
-        labelTelefone.setText("Telefone: " + contato.getNumeroTelefone());
-        labelEmail.setText("Email: " + contato.getEmail());
+        NomeContato.setText("Nome: " + contato.getNome());
+        TelefoneContato.setText("Telefone: " + contato.getNumeroTelefone());
+        EmailContato.setText("Email: " + contato.getEmail());
 
         String fotoPath = contato.getFotoPerfil();
         if (fotoPath != null && !fotoPath.isEmpty()) {
@@ -84,8 +84,8 @@ public class PerfilContatoController {
     }
 
     @FXML
-    private void Voltar() {
-        labelNome.getScene().getWindow().hide();
+    private void logout() {
+        NomeContato.getScene().getWindow().hide();
 
     }
 }

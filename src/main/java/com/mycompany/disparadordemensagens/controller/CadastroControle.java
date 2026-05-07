@@ -5,8 +5,11 @@ import com.mycompany.disparadordemensagens.App;
 import com.mycompany.disparadordemensagens.models.Contato;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.DialogPane;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.scene.input.KeyCode;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -35,7 +38,7 @@ public class CadastroControle {
     /**
      * Função de cadastro de usuário
      * 
-     * @throws Exception  caso não consiga fazer cadastro
+     * @throws Exception caso não consiga fazer cadastro
      * 
      * @author Iuri
      * @since 30/04/2026
@@ -48,7 +51,7 @@ public class CadastroControle {
         String telefone = telefoneField.getText();
         String senha = senhaField.getText();
         String email = emailField.getText();
-        
+
         if (email.isEmpty()) {
             mostrarAlerta("Erro", "O campo de e-mail está vazio!");
             return;
@@ -148,16 +151,44 @@ public class CadastroControle {
      */
     @FXML
     public void initialize() {
-        // Ao pressionar Enter no campo email → vai para nome 
-        emailField.setOnAction(e -> nomeField.requestFocus());
 
-        // Ao pressionar Enter no campo nome → vai para telefone
-        nomeField.setOnAction(e -> telefoneField.requestFocus());
+        // validacao para descer ou subir o campo com a seta do teclado
 
-        // Ao pressionar Enter no campo telefone → vai para senha
-        telefoneField.setOnAction(e -> senhaField.requestFocus());
-        
-        senhaField.setOnAction(e -> cadastrar.requestFocus()); 
+        emailField.setOnKeyPressed(e -> {
+            if (e.getCode() == KeyCode.DOWN || e.getCode() == KeyCode.ENTER)
+                nomeField.requestFocus();
+        });
+
+        nomeField.setOnKeyPressed(e -> {
+            if (e.getCode() == KeyCode.DOWN || e.getCode() == KeyCode.ENTER) {
+                telefoneField.requestFocus();
+            } else if (e.getCode() == KeyCode.UP) {
+                emailField.requestFocus();
+            }
+        });
+
+        telefoneField.setOnKeyPressed(e -> {
+            if (e.getCode() == KeyCode.DOWN || e.getCode() == KeyCode.ENTER) {
+                senhaField.requestFocus();
+            } else if (e.getCode() == KeyCode.UP) {
+                nomeField.requestFocus();
+            }
+        });
+
+        senhaField.setOnKeyPressed(e -> {
+            if (e.getCode() == KeyCode.DOWN || e.getCode() == KeyCode.ENTER) {
+                cadastrar.requestFocus();
+            } else if (e.getCode() == KeyCode.UP) {
+                telefoneField.requestFocus();
+            }
+        });
+
+        emailField.setOnKeyPressed(e -> {
+            if (e.getCode() == KeyCode.DOWN || e.getCode() == KeyCode.ENTER) {
+                nomeField.requestFocus();
+            }
+        });
+
     }
 
     /**

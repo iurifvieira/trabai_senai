@@ -4,6 +4,7 @@ import com.mycompany.disparadordemensagens.database.Conexao;
 import com.mycompany.disparadordemensagens.models.Contato;
 import com.mycompany.disparadordemensagens.App;
 import com.mycompany.disparadordemensagens.models.Mensagem;
+import com.mycompany.disparadordemensagens.controller.PerfilContatoController;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -31,6 +32,7 @@ import java.io.IOException;
 import javafx.scene.shape.Circle;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
+import javafx.application.Platform;
 import javafx.util.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -101,7 +103,13 @@ public class UsuarioControle {
     @FXML
     public void initialize() {
         listaContatos.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+        // inicia o relogio digital
         iniciarRelogio();
+        // função para quando não for encontrado usuario na pesquisa aparecer esta
+        // mensagem
+        Label placeholder = new Label("Nenhum contato encontrado");
+        placeholder.setStyle("-fx-text-fill: gray; -fx-font-size: 14px;");
+
         // A filtragem do usuário logado é feita dentro do while abaixo
         try (Connection conn = Conexao.conectar()) {
             String sql = "SELECT id, nome, numeroTelefone, email, foto_perfil FROM usuarios";
@@ -126,6 +134,7 @@ public class UsuarioControle {
             e.printStackTrace();
             labelStatusSistema.setText("Erro ao carregar usuários");
         }
+
         labelContagem.textProperty().bind(
                 Bindings.size(listaContatos.getSelectionModel().getSelectedItems())
                         .asString()
@@ -175,9 +184,19 @@ public class UsuarioControle {
             labelTelefoneUsuario.setText("Tel: " + Sessao.getUsuarioLogado().getNumeroTelefone());
             labelEmailUsuario.setText("Email: " + Sessao.getUsuarioLogado().getEmail());
         }
-
+        // define como o fundo da lista
+        listaContatos.setPlaceholder(placeholder);
         // Configurar célula personalizada para a lista de contatos
         configurarCelulaContato();
+
+        // Garante que o scroll acompanhe a última linha
+        Platform.runLater(() -> {
+            // Define a posição do cursor no final do texto total
+            historicoMensagens.setScrollTop(Double.MAX_VALUE);
+            historicoMensagens.selectPositionCaret(historicoMensagens.getLength());
+            historicoMensagens.deselect();
+        });
+
     }
 
     /**
@@ -250,9 +269,23 @@ public class UsuarioControle {
                 // Torna a célula clicável
                 imageView.setStyle("-fx-cursor: hand;");
                 imageView.setOnMouseClicked(event -> {
-                    abrirPerfilContato(contato);
+                    try {
+                        FXMLLoader loader = new FXMLLoader(
+                                getClass().getResource("/com/mycompany/disparadordemensagens/PerfilContato.fxml"));
+                        Parent root = loader.load();
+
+                        PerfilContatoController controller = loader.getController();
+                        controller.setContato(contato); // passa o contato clicado
+
+                        Stage stage = new Stage();
+                        stage.setTitle("Perfil do contato ");
+                        stage.setScene(new Scene(root));
+                        stage.show();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 });
-                
+
                 setGraphic(hbox);
             }
 
@@ -274,28 +307,6 @@ public class UsuarioControle {
                 }
             }
         });
-    }
-
-    /**
-     * Exibe um alerta com informações detalhadas do contato selecionado.
-     *
-     * @param contato Contato o qual perfil será exibido
-     * @since 30/04/2026
-     * @author Iuri
-     */
-    @FXML
-    private void abrirPerfilContato(Contato contato) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Perfil do Usuário");
-        alert.setHeaderText(contato.getNome());
-
-        String conteudo = " Telefone: " + contato.getNumeroTelefone() + "\n" +
-                " Email: " + contato.getEmail() + "\n" +
-                " ID: " + contato.getId();
-
-        alert.setContentText(conteudo);
-        alert.showAndWait();
-
     }
 
     /**
@@ -638,6 +649,7 @@ public class UsuarioControle {
             String sqlPesquisar = "SELECT id, nome, numeroTelefone, email, foto_perfil FROM usuarios WHERE nome LIKE ?";
             PreparedStatement stmt = conn.prepareStatement(sqlPesquisar);
             stmt.setString(1, "%" + nome + "%");
+
             listaContatos.getItems().clear();
 
             try (ResultSet rsPesq = stmt.executeQuery()) {
@@ -722,4 +734,5 @@ public class UsuarioControle {
         alert.setContentText(mensagem);
         alert.showAndWait();
     }
+
 }

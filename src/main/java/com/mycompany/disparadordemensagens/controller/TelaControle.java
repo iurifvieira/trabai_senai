@@ -7,7 +7,9 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
+import javafx.scene.control.DialogPane;
 import javafx.scene.control.TextField;
+import javafx.scene.input.KeyCode;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.Alert;
 import java.sql.Connection;
@@ -25,7 +27,8 @@ public class TelaControle {
     private Button salvar;
     @FXML
     private Button limpar;
-
+    @FXML
+    private Button entrarLogin;
     private int id;
 
     @FXML
@@ -68,6 +71,23 @@ public class TelaControle {
     }
 
     @FXML
+    private void validaCampos() {
+        emaillogin.setOnKeyPressed(e -> {
+            if (e.getCode() == KeyCode.DOWN || e.getCode() == KeyCode.ENTER)
+                senhalogin.requestFocus();
+        });
+
+        senhalogin.setOnKeyPressed(e -> {
+            if (e.getCode() == KeyCode.DOWN || e.getCode() == KeyCode.ENTER) {
+                entrarLogin.requestFocus();
+            } else if (e.getCode() == KeyCode.UP) {
+                emaillogin.requestFocus();
+            }
+        });
+
+    }
+
+    @FXML
     private void limparLogin() {
         emaillogin.clear();
         senhalogin.clear();
@@ -83,15 +103,15 @@ public class TelaControle {
         }
     }
 
-    @FXML
-    private void abrirTelaRedefinirSenha() {
-        try {
-            App.setRoot("EsqueciSenha"); // nome do arquivo FXML da tela de redefinição
-        } catch (Exception e) {
-            mostrarAlerta("Erro", "Não foi possível abrir a tela de redefinição.");
-            e.printStackTrace();
-        }
-    }
+    // @FXML
+    // private void abrirTelaRedefinirSenha() {
+    // try {
+    // App.setRoot("EsqueciSenha"); // nome do arquivo FXML da tela de redefinição
+    // } catch (Exception e) {
+    // mostrarAlerta("Erro", "Não foi possível abrir a tela de redefinição.");
+    // e.printStackTrace();
+    // }
+    // }
 
     private void mostrarAlerta(String titulo, String mensagem) {
         Alert alert = new Alert(Alert.AlertType.ERROR);

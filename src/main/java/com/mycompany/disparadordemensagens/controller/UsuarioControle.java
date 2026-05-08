@@ -148,16 +148,16 @@ public class UsuarioControle {
         });
         // Faz seleção de usuario manualmente, surge uma mensagem "selecionar
         // manualmente"
-        listaContatos.getSelectionModel().getSelectedItems().addListener((ListChangeListener<Contato>) change -> {
-            if (isCtrlPressed() && listaContatos.getSelectionModel().getSelectedItems().size() > 1) {
-                labelSelecionarManual.setText("Selecionar manualmente");
-            } else {
-                labelSelecionarManual.setText("");
-            }
-        });
+        // listaContatos.getSelectionModel().getSelectedItems().addListener((ListChangeListener<Contato>) change -> {
+        //     if (isCtrlPressed() && listaContatos.getSelectionModel().getSelectedItems().size() > 0) {
+        //         labelSelecionarManual.setText("Selecionar manualmente");
+        //     } else {
+        //         labelSelecionarManual.setText("");
+        //     }
+        // });
 
         listaContatos.setOnKeyPressed(event -> {
-            if (event.isControlDown() && listaContatos.getSelectionModel().getSelectedItems().size() > 1) {
+            if (event.isControlDown() && listaContatos.getSelectionModel().getSelectedItems().size() > 0) {
                 labelSelecionarManual.setText("Selecionar manualmente");
             }
         });
@@ -191,12 +191,11 @@ public class UsuarioControle {
 
         // Garante que o scroll acompanhe a última linha
         Platform.runLater(() -> {
-            // Define a posição do cursor no final do texto total
+            //posição do cursor no final do texto 
             historicoMensagens.setScrollTop(Double.MAX_VALUE);
             historicoMensagens.selectPositionCaret(historicoMensagens.getLength());
             historicoMensagens.deselect();
         });
-
     }
 
     /**

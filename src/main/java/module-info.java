@@ -7,7 +7,7 @@ module com.mycompany.disparadordemensagens {
     opens com.mycompany.disparadordemensagens to javafx.fxml;
     opens com.mycompany.disparadordemensagens.controller to javafx.fxml;
     opens com.mycompany.disparadordemensagens.models to javafx.fxml;
-    
+
     
     exports com.mycompany.disparadordemensagens;
     exports com.mycompany.disparadordemensagens.controller;

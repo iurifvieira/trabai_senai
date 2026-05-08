@@ -8,7 +8,9 @@ import javafx.scene.control.Button;
 import javafx.scene.control.DialogPane;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.scene.control.skin.TextFieldSkin;
 import javafx.scene.input.KeyCode;
+import java.util.List;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -34,6 +36,8 @@ public class CadastroControle {
     private Label labelTelefoneCount;
     @FXML
     private Button cadastrar;
+    @FXML
+    private Label labelSelecionarManual;
 
     /**
      * Função de cadastro de usuário
@@ -153,7 +157,6 @@ public class CadastroControle {
     public void initialize() {
 
         // validacao para descer ou subir o campo com a seta do teclado
-
         emailField.setOnKeyPressed(e -> {
             if (e.getCode() == KeyCode.DOWN || e.getCode() == KeyCode.ENTER)
                 nomeField.requestFocus();

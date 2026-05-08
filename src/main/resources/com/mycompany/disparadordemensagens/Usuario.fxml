@@ -84,7 +84,7 @@
                     <children>
 
                         <Label style="-fx-font-weight: bold; -fx-text-fill: #7f8c8d;" text="Histórico de Conversa Individual" />
-                        <TextArea fx:id="historicoMensagens" editable="false" prefHeight="250.0" promptText="As mensagens envidas aparecerão aqui.." style="-fx-control-inner-background: #fdfdfd; -fx-font-family: 'Consolas', 'Monospace'; -fx-font-size: 12px; -fx-border-color: #e0e0e0;" wrapText="true" />
+                        <TextArea fx:id="historicoMensagens" editable="false" prefHeight="250.0" promptText="As mensagens enviadas aparecerão aqui.." style="-fx-control-inner-background: #fdfdfd; -fx-font-family: 'Consolas', 'Monospace'; -fx-font-size: 12px; -fx-border-color: #e0e0e0;" wrapText="true" />
 
                         <Separator />
 

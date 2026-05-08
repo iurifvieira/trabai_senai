@@ -31,7 +31,7 @@ public class PerfilContatoController {
     // @FXML private Label labelId;
 
     void setContato(Contato contato) {
-        NomeContato.setText("Nome: " + contato.getNome());
+        NomeContato.setText(contato.getNome());
         TelefoneContato.setText("Telefone: " + contato.getNumeroTelefone());
         EmailContato.setText("Email: " + contato.getEmail());
 

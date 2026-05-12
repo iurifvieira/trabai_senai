@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox prefHeight="450.0" prefWidth="550.0" spacing="0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mycompany.disparadordemensagens.controller.PerfilUsuarioControle">
+  <children>
+    <HBox alignment="CENTER" spacing="20" style="-fx-background-color: #2c3e50; -fx-padding: 15;">
+      <children>
+        <VBox alignment="CENTER" prefHeight="120.0" prefWidth="388.0" spacing="10">
+          <children>
+            <StackPane>
+              <children>
+                <ImageView fx:id="fotoUsuario" fitHeight="80" fitWidth="80" onMouseClicked="#abrirFotoTelaCheia" preserveRatio="true" style="-fx-cursor: hand;" />
+              </children>
+            </StackPane>
+      
+                    <!-- Botão sair -->
+              <Button fx:id="Editar" onAction="#Editar" prefHeight="25.0" prefWidth="118.0" style="-fx-background-color: #c0392b; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;" text="Editar" />
+          </children>
+        </VBox>
+      </children>
+    </HBox>
+
+
+    <!--  dados do contato -->
+    <VBox spacing="5" style="-fx-padding: 20;">
+      <children>
+        <Label fx:id="NomeUsuario" prefHeight="30.0" prefWidth="173.0" style="-fx-text-fill: #000000; -fx-font-size: 12px;" />
+        <Label fx:id="EmailUsuario" prefHeight="28.0" prefWidth="176.0" style="-fx-text-fill: #000000; -fx-font-size: 12px;" />
+        <Label fx:id="TelefoneUsuario" prefHeight="24.0" prefWidth="181.0" style="-fx-text-fill: #000000; -fx-font-size: 12px;" />
+      </children>
+    </VBox>
+
+  </children>
+</VBox>

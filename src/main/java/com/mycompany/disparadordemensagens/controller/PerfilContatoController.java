@@ -29,7 +29,11 @@ public class PerfilContatoController {
     @FXML
     private Label EmailContato;
     // @FXML private Label labelId;
-
+    /**
+     * Recebe os dados do contato em uma tela
+     * 
+     * @param contato
+     */
     void setContato(Contato contato) {
         NomeContato.setText(contato.getNome());
         TelefoneContato.setText("Telefone: " + contato.getNumeroTelefone());
@@ -56,6 +60,11 @@ public class PerfilContatoController {
 
     }
 
+    /**
+     * Abre foto em tela cheia para melhor visualização
+     * 
+     * @author iuri
+     */
     @FXML
     private void abrirFotoTelaCheia() {
         if (fotoContato.getImage() != null) {
@@ -76,6 +85,10 @@ public class PerfilContatoController {
         }
     }
 
+    /**
+     * Carrega foto em branco (foto padrão), caso usuário não possua foto
+     * 
+     */
     private void carregarAvatarPadrao() {
         var url = getClass().getResource("/com/mycompany/disparadordemensagens/img/avatar.jpg");
         if (url != null) {

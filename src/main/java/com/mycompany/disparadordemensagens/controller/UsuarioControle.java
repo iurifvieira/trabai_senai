@@ -20,6 +20,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import javafx.beans.binding.Bindings;
 
@@ -146,15 +147,6 @@ public class UsuarioControle {
         listaContatos.getSelectionModel().selectedItemProperty().addListener((obs, antigo, novo) -> {
             atualizarVisualizacao();
         });
-        // Faz seleção de usuario manualmente, surge uma mensagem "selecionar
-        // manualmente"
-        // listaContatos.getSelectionModel().getSelectedItems().addListener((ListChangeListener<Contato>) change -> {
-        //     if (isCtrlPressed() && listaContatos.getSelectionModel().getSelectedItems().size() > 0) {
-        //         labelSelecionarManual.setText("Selecionar manualmente");
-        //     } else {
-        //         labelSelecionarManual.setText("");
-        //     }
-        // });
 
         listaContatos.setOnKeyPressed(event -> {
             if (event.isControlDown() && listaContatos.getSelectionModel().getSelectedItems().size() > 0) {
@@ -181,8 +173,6 @@ public class UsuarioControle {
         // Exibir nome/email/telefone do usuário logado
         if (Sessao.getUsuarioLogado() != null) {
             labelNomeUsuario.setText(Sessao.getUsuarioLogado().getNome());
-            labelTelefoneUsuario.setText("Tel: " + Sessao.getUsuarioLogado().getNumeroTelefone());
-            labelEmailUsuario.setText("Email: " + Sessao.getUsuarioLogado().getEmail());
         }
         // define como o fundo da lista
         listaContatos.setPlaceholder(placeholder);
@@ -191,7 +181,7 @@ public class UsuarioControle {
 
         // Garante que o scroll acompanhe a última linha
         Platform.runLater(() -> {
-            //posição do cursor no final do texto 
+            // posição do cursor no final do texto
             historicoMensagens.setScrollTop(Double.MAX_VALUE);
             historicoMensagens.selectPositionCaret(historicoMensagens.getLength());
             historicoMensagens.deselect();
@@ -416,98 +406,26 @@ public class UsuarioControle {
      * @since 30/04/2026
      * @author Iuri
      */
+
     @FXML
     private void abrirConfiguracoesPerfil() {
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle("Configurações de Perfil");
-        alert.setHeaderText("Alterar Foto de Perfil");
-        alert.setContentText("Deseja alterar sua foto de perfil?");
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/com/mycompany/disparadordemensagens/ConfigUsuario.fxml"));
+            Parent root = loader.load();
 
-        ButtonType buttonSim = new ButtonType("Alterar Foto");
-        ButtonType buttonCancelar = new ButtonType("Cancelar", ButtonBar.ButtonData.CANCEL_CLOSE);
-        alert.getButtonTypes().setAll(buttonSim, buttonCancelar);
-
-        alert.showAndWait().ifPresent(response -> {
-            if (response == buttonSim) {
-                alterarFotoPerfil();
-            }
-        });
-    }
-
-    /**
-     * Função para alterar foto de perfil
-     * 
-     * @since 30/04/2026
-     * @author Iuri
-     */
-
-    private void alterarFotoPerfil() {
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Selecionar Foto de Perfil");
-        fileChooser.getExtensionFilters().addAll(
-                new FileChooser.ExtensionFilter("Imagens", "*.png", "*.jpg", "*.jpeg", "*.gif", ".*jfif"));
-
-        Stage stage = (Stage) imagemPerfil.getScene().getWindow();
-        File arquivoSelecionado = fileChooser.showOpenDialog(stage);
-
-        if (arquivoSelecionado != null) {
-            try {
-                // Criar pasta se não existir
-                File pasta = new File(PASTA_FOTOS);
-                if (!pasta.exists()) {
-                    pasta.mkdirs();
-                }
-
-                // Verificar se já existe foto anterior e excluir
-                String fotoPath = getFotoPerfilUsuario(Sessao.getUsuarioLogado().getId());
-                if (fotoPath != null) {
-                    File fotoAntiga = new File(fotoPath);
-                    if (fotoAntiga.exists()) {
-                        fotoAntiga.delete();
-                        System.out.println("Foto anterior excluída: " + fotoAntiga.getName());
-                    }
-                }
-
-                // Copiar arquivo para pasta de fotos (sem timestamp para substituir)
-                String extensao = getExtensao(arquivoSelecionado.getName());
-                File destino = new File(PASTA_FOTOS + "perfil_" + Sessao.getUsuarioLogado().getId() + extensao);
-
-                try (FileInputStream fis = new FileInputStream(arquivoSelecionado);
-                        FileOutputStream fos = new FileOutputStream(destino)) {
-                    byte[] buffer = new byte[1024];
-                    int length;
-                    while ((length = fis.read(buffer)) > 0) {
-                        fos.write(buffer, 0, length);
-                    }
-                }
-
-                // Atualizar ImageView
-                Image image = new Image(destino.toURI().toString());
-                imagemPerfil.setImage(image);
-
-                // Salvar caminho completo no banco de dados
-                String caminhoCompleto = destino.getAbsolutePath();
-                salvarFotoPerfilUsuario(Sessao.getUsuarioLogado().getId(), caminhoCompleto);
-
-                mostrarAlerta("Sucesso", "Foto de perfil alterada com sucesso!");
-                // aplica metodo da imagem
-                aplicarClipCircular(imagemPerfil);
-
-            } catch (Exception e) {
-                e.printStackTrace();
-                mostrarAlerta("Erro", "Falha ao alterar foto de perfil.");
-            }
+            PerfilUsuarioControle controller = loader.getController();
+            controller.setUsuario(); // chama o método que popula os dados do usuário logado
+            
+            Stage stage = new Stage();
+            // quando fechar a janela, recarrega a foto na tela principal
+            stage.setOnHidden(event -> carregarFotoPerfil());
+            stage.setTitle("Perfil do Usuário");
+            stage.setScene(new Scene(root));
+            stage.show();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-    }
-
-    private String getExtensao(String nomeArquivo) {
-        int lastDot = nomeArquivo.lastIndexOf('.');
-        return (lastDot > 0) ? nomeArquivo.substring(lastDot) : ".png";
-    }
-
-    private boolean isCtrlPressed() {
-        return listaContatos.getScene() != null
-                && listaContatos.getScene().getAccelerators() != null;
     }
 
     /**
@@ -611,14 +529,20 @@ public class UsuarioControle {
                         ? "Você <" + Sessao.getUsuarioLogado().getEmail() + ">"
                         : selecionado.getNome() + " <" + selecionado.getEmail() + ">";
 
+                // pega o timestamp e formata
+                Timestamp ts = rs.getTimestamp("datahora");
+                LocalDateTime dataHora = ts.toLocalDateTime();
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d 'de' MMM 'de' yyyy, HH:mm",
+                        new Locale("pt", "BR"));
+                String dataFormatada = dataHora.format(formatter);
+
                 sb.append("\nDE: ").append(remetenteNome).append("\n");
                 sb.append("PARA: ").append(destinatarioNome).append("\n");
                 sb.append("ASSUNTO: ").append(rs.getString("assunto").toUpperCase()).append("\n");
-                sb.append("DATA: ").append(rs.getTimestamp("datahora")).append("\n");
+                sb.append("DATA: ").append(dataFormatada).append("\n");
                 sb.append("PRIORIDADE: ").append(rs.getString("prioridade").toUpperCase()).append("\n");
                 sb.append("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n");
                 sb.append("MENSAGEM:\n\n").append(rs.getString("mensagem")).append("\n\n");
-                sb.append("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n");
             }
 
             if (!temMensagens) {
@@ -673,8 +597,6 @@ public class UsuarioControle {
         }
     }
 
-
-    
     @FXML
     private void limparCampos() {
         campoAssuntoEnvio.clear();
@@ -690,7 +612,7 @@ public class UsuarioControle {
     private void desmarcarTodos() {
         listaContatos.getSelectionModel().clearSelection();
         historicoMensagens.clear();
-        labelContagem.setText("Nenhum contato selecionado");
+        labelContagem.setText("");
     }
 
     @FXML
